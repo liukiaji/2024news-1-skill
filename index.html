@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开塞露主理人 · 安全使用交互百科</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap');
+:root{
+  --bg:#fffdf7;--bg2:#fff8eb;--card:#fff;--card2:#fff9ef;
+  --text:#2d2d2d;--dim:#888;--border:#e5dcc8;
+  --teal:#00a896;--coral:#ff6b6b;--amber:#ffc857;--blue:#4ecdc4;
+  --pink:#ff8fab;--green:#7bc67e;--orange:#ff9f43;--purple:#a29bfe;
+  --doodle:#3d3d3d;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.7;position:relative}
+/* 全局手绘背景Canvas */
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35}
+.z1{position:relative;z-index:1}
+
+/* 进度条 */
+#scrollBar{position:fixed;top:0;left:0;height:4px;z-index:9999;background:linear-gradient(90deg,var(--teal),var(--blue),var(--pink),var(--amber));transition:width .15s;border-radius:0 2px 2px 0}
+
+/* 导航 */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,253,247,.9);backdrop-filter:blur(16px);border-bottom:2px dashed var(--border);padding:10px 24px;display:flex;justify-content:space-between;align-items:center}
+.topnav .brand{font-family:'ZCOOL KuaiLe',cursive;font-size:1.15rem;color:var(--teal)}
+.topnav .links{display:flex;gap:16px;flex-wrap:wrap}
+.topnav .links a{color:var(--dim);text-decoration:none;font-size:.76rem;font-weight:700;transition:all .3s;padding:3px 8px;border-radius:8px}
+.topnav .links a:hover{color:var(--teal);background:rgba(0,168,150,.08)}
+
+/* 通用 */
+.sec{padding:70px 16px;max-width:1100px;margin:0 auto}
+.stitle{font-family:'ZCOOL KuaiLe',cursive;font-size:1.7rem;text-align:center;margin-bottom:8px}
+.stitle .hi{color:var(--teal)}
+.sdesc{text-align:center;color:var(--dim);max-width:480px;margin:0 auto 36px;font-size:.85rem;line-height:1.8}
+
+/* 涂鸦卡片 */
+.dcard{background:var(--card);border:3px solid var(--doodle);border-radius:18px;padding:22px;position:relative;box-shadow:4px 4px 0 var(--doodle);transition:all .25s}
+.dcard:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--doodle)}
+.dcard::before{content:'';position:absolute;top:-8px;right:-8px;width:24px;height:24px;background:var(--amber);border:2px solid var(--doodle);border-radius:50%;z-index:2}
+
+/* 按钮 */
+.dbtn{padding:10px 24px;border:3px solid var(--doodle);border-radius:14px;font-family:'ZCOOL KuaiLe',cursive;font-size:.9rem;cursor:pointer;transition:all .2s;box-shadow:3px 3px 0 var(--doodle);background:var(--amber);color:var(--doodle)}
+.dbtn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--doodle)}
+.dbtn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--doodle)}
+.dbtn.teal{background:var(--teal);color:#fff}
+.dbtn.coral{background:var(--coral);color:#fff}
+.dbtn.green{background:var(--green);color:#fff}
+.dbtn.pink{background:var(--pink);color:#fff}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:100px 20px 60px}
+.hero-main-icon{width:180px;height:180px;margin:0 auto 24px;animation:heroBob 3s ease-in-out infinite}
+@keyframes heroBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+.hero h1{font-family:'ZCOOL KuaiLe',cursive;font-size:clamp(2rem,5vw,3.2rem);margin-bottom:12px;line-height:1.3}
+.hero h1 .accent{color:var(--teal);position:relative;display:inline-block}
+.hero h1 .accent::after{content:'';position:absolute;bottom:2px;left:0;width:100%;height:8px;background:var(--amber);opacity:.4;border-radius:4px;z-index:-1}
+.hero-sub{font-size:1rem;color:var(--dim);max-width:520px;margin:0 auto 30px;line-height:1.9}
+.hero-pinyin{font-size:1.1rem;color:var(--teal);font-weight:700;letter-spacing:4px;margin-bottom:16px;font-family:'ZCOOL KuaiLe',cursive}
+
+/* 图鉴 */
+.guide-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:36px}
+.guide-card{background:var(--card);border:3px solid var(--doodle);border-radius:18px;padding:18px 10px 14px;text-align:center;cursor:pointer;transition:all .3s;box-shadow:3px 3px 0 var(--doodle);position:relative}
+.guide-card:hover{transform:translate(-3px,-3px);box-shadow:6px 6px 0 var(--doodle)}
+.guide-card.active{border-color:var(--teal);box-shadow:4px 4px 0 var(--teal);background:rgba(0,168,150,.05)}
+.guide-card.active::after{content:'✓';position:absolute;top:-10px;right:-10px;width:24px;height:24px;background:var(--teal);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:900}
+.guide-svg{width:60px;height:90px;margin:0 auto 8px}
+.guide-name{font-family:'ZCOOL KuaiLe',cursive;font-size:.85rem;margin-bottom:4px}
+.guide-ml{font-size:.68rem;color:var(--dim);background:var(--bg2);padding:1px 8px;border-radius:8px;display:inline-block;border:1px dashed var(--border)}
+
+/* 详情 */
+.detail-box{background:var(--card);border:3px solid var(--doodle);border-radius:22px;overflow:hidden;display:none;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275);box-shadow:5px 5px 0 var(--doodle)}
+.detail-box.show{display:block}
+@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.detail-head{display:flex;gap:20px;padding:24px;background:var(--bg2);border-bottom:3px dashed var(--border);align-items:center}
+.detail-svg-box{width:100px;height:150px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--card);border:2px solid var(--border);border-radius:14px}
+.detail-svg-box svg{width:75px;height:115px}
+.detail-info h3{font-family:'ZCOOL KuaiLe',cursive;font-size:1.3rem;margin-bottom:4px}
+.detail-info .dtag{display:inline-block;padding:3px 12px;border-radius:10px;font-size:.7rem;font-weight:700;background:var(--teal);color:#fff;margin-bottom:8px}
+.detail-info .dintro{color:var(--dim);font-size:.84rem;line-height:1.8}
+.steps-box{padding:20px 24px 24px}
+.step-row{display:flex;gap:10px;margin-bottom:10px;padding:14px;background:var(--bg2);border-radius:12px;border-left:4px solid var(--teal);cursor:pointer;transition:all .3s}
+.step-row:hover{background:rgba(0,168,150,.06);transform:translateX(6px)}
+.step-row.open{border-left-color:var(--coral);background:rgba(255,107,107,.06)}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.78rem;flex-shrink:0}
+.step-row.open .step-num{background:var(--coral)}
+.step-body h4{font-size:.88rem;font-weight:700;margin-bottom:2px}
+.step-body p{color:var(--dim);font-size:.8rem}
+.step-tip{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.step-row.open .step-tip{max-height:200px;margin-top:8px}
+.step-tip-inner{padding:8px 12px;border-radius:8px;background:rgba(255,200,87,.12);border:1px dashed var(--amber);color:var(--orange);font-size:.78rem;line-height:1.7}
+
+/* 医生小游戏 */
+.game-wrap{background:var(--card);border:3px solid var(--doodle);border-radius:22px;overflow:hidden;box-shadow:5px 5px 0 var(--doodle)}
+.game-header{padding:20px 24px;background:var(--bg2);border-bottom:3px dashed var(--border);display:flex;align-items:center;gap:12px}
+.game-header h3{font-family:'ZCOOL KuaiLe',cursive;font-size:1.15rem}
+.game-body{padding:24px}
+#gameCanvas{width:100%;max-width:700px;display:block;margin:0 auto;border:3px solid var(--doodle);border-radius:14px;background:#fffdf7;cursor:pointer;aspect-ratio:7/4}
+.game-controls{margin-top:18px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;align-items:center}
+.game-controls label{font-family:'ZCOOL KuaiLe',cursive;font-size:.85rem}
+.game-controls select,.game-controls input{padding:6px 12px;border:2px solid var(--doodle);border-radius:10px;font-family:'ZCOOL KuaiLe',cursive;font-size:.82rem;background:var(--card)}
+.game-msg{text-align:center;margin-top:14px;font-size:.88rem;min-height:30px;font-weight:700}
+
+/* 互动模块 */
+.interact-box{background:var(--card);border:3px solid var(--doodle);border-radius:22px;overflow:hidden;box-shadow:4px 4px 0 var(--doodle)}
+.interact-header{padding:18px 22px;background:var(--bg2);border-bottom:3px dashed var(--border);display:flex;align-items:center;gap:10px}
+.interact-header .ih-emoji{font-size:1.5rem}
+.interact-header h3{font-family:'ZCOOL KuaiLe',cursive;font-size:1.05rem}
+.interact-body{padding:22px}
+
+/* 深度训练 */
+.depth-canvas-wrap{position:relative;width:100%;max-width:480px;margin:0 auto}
+#depthCanvas{width:100%;display:block;cursor:grab;border:3px solid var(--doodle);border-radius:14px;background:#fffdf7}
+#depthCanvas:active{cursor:grabbing}
+.depth-readout{text-align:center;margin-top:12px;font-family:'ZCOOL KuaiLe',cursive}
+.depth-val{font-size:2.2rem;font-weight:900;color:var(--teal)}
+.depth-status{font-weight:700;margin-top:4px;font-size:.9rem}
+
+/* 推注 */
+.push-track{width:100%;max-width:380px;height:50px;margin:16px auto;background:var(--bg2);border:3px solid var(--doodle);border-radius:25px;position:relative;overflow:hidden;cursor:pointer}
+.push-fill{height:100%;border-radius:22px;width:0%;transition:width .08s}
+.push-fill.slow{background:linear-gradient(90deg,var(--teal),var(--green))}
+.push-fill.fast{background:linear-gradient(90deg,var(--coral),var(--amber))}
+.push-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-weight:700;font-size:.82rem;color:var(--dim);pointer-events:none;z-index:2;font-family:'ZCOOL KuaiLe',cursive}
+.push-fb{text-align:center;margin-top:12px;min-height:50px}
+
+/* 风险 */
+.risk-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.risk-tab{padding:6px 14px;border-radius:10px;background:var(--bg2);border:2px solid var(--border);cursor:pointer;font-size:.78rem;font-weight:700;transition:all .3s;font-family:'ZCOOL KuaiLe',cursive}
+.risk-tab:hover{border-color:var(--teal)}
+.risk-tab.active{background:var(--coral);color:#fff;border-color:var(--coral)}
+.risk-visual{display:flex;gap:16px;align-items:flex-start}
+.risk-icon{font-size:2.5rem;flex-shrink:0}
+.risk-text h4{font-family:'ZCOOL KuaiLe',cursive;margin-bottom:4px}
+.risk-text p{color:var(--dim);font-size:.82rem;line-height:1.7}
+.risk-stat{display:inline-block;padding:3px 10px;border-radius:8px;font-size:.75rem;font-weight:700;margin-top:6px}
+.risk-bar{height:10px;border-radius:5px;background:var(--bg2);margin-top:10px;overflow:hidden;border:1px solid var(--border)}
+.risk-bar-fill{height:100%;border-radius:5px;transition:width 1s ease}
+
+/* 人群 */
+.people-tabs{display:flex;gap:8px;margin-bottom:18px;justify-content:center;flex-wrap:wrap}
+.people-tab{padding:10px 18px;border-radius:14px;background:var(--bg2);border:2px solid var(--border);cursor:pointer;font-weight:700;font-size:.82rem;transition:all .3s;font-family:'ZCOOL KuaiLe',cursive}
+.people-tab:hover{border-color:var(--teal)}
+.people-tab.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.people-params{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.pp-item{background:var(--bg2);border-radius:12px;padding:12px;text-align:center;border:2px dashed var(--border)}
+.pp-label{font-size:.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.pp-val{font-size:1.2rem;font-weight:900;font-family:'ZCOOL KuaiLe',cursive;margin-top:2px}
+.people-warn{padding:12px 16px;border-radius:12px;background:rgba(255,107,107,.08);border:2px dashed var(--coral);color:var(--coral);font-size:.82rem;line-height:1.7;font-weight:600}
+
+/* 自测 */
+.sq-wrap{max-width:560px;margin:0 auto}
+.sq-q{font-size:1rem;font-weight:700;margin-bottom:14px;line-height:1.6;font-family:'ZCOOL KuaiLe',cursive}
+.sq-opts{display:flex;flex-direction:column;gap:8px}
+.sq-opt{padding:12px 16px;border-radius:12px;background:var(--bg2);border:2px solid var(--border);cursor:pointer;font-size:.84rem;transition:all .3s}
+.sq-opt:hover{border-color:var(--teal);background:rgba(0,168,150,.05)}
+.sq-opt.chosen{border-color:var(--teal);background:rgba(0,168,150,.08);font-weight:600}
+.sq-nav{display:flex;justify-content:space-between;margin-top:16px}
+
+/* 计时器 */
+.timer-circle{width:160px;height:160px;border-radius:50%;margin:16px auto;display:flex;align-items:center;justify-content:center;flex-direction:column;border:5px solid var(--border);transition:all .5s;position:relative}
+.timer-circle.running{border-color:var(--teal);animation:tpulse 2s infinite}
+.timer-circle.success{border-color:var(--green);animation:none}
+.timer-circle.failed{border-color:var(--coral);animation:none}
+@keyframes tpulse{0%,100%{box-shadow:0 0 0 0 rgba(0,168,150,.2)}50%{box-shadow:0 0 0 16px rgba(0,168,150,0)}}
+.timer-time{font-size:2rem;font-weight:900;color:var(--teal);font-family:'ZCOOL KuaiLe',cursive}
+.timer-label{font-size:.72rem;color:var(--dim)}
+.timer-btns{display:flex;justify-content:center;gap:10px;margin-top:16px}
+.timer-msg{text-align:center;margin-top:12px;font-size:.84rem;min-height:30px;font-weight:600}
+
+/* 禁忌 */
+.em-card{background:var(--bg2);border-radius:14px;padding:20px;margin-bottom:12px;border:2px solid var(--border)}
+.em-symptom{font-size:1rem;font-weight:700;margin-bottom:2px;color:var(--coral);font-family:'ZCOOL KuaiLe',cursive}
+.em-desc{color:var(--dim);font-size:.82rem;margin-bottom:12px}
+.em-opts{display:flex;gap:8px}
+.em-opt{flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--card);cursor:pointer;text-align:center;font-weight:700;font-size:.82rem;transition:all .3s;font-family:'ZCOOL KuaiLe',cursive}
+.em-opt:hover{transform:translateY(-2px)}
+.em-opt.ok{border-color:var(--green);background:rgba(123,198,126,.1);color:var(--green)}
+.em-opt.no{border-color:var(--coral);background:rgba(255,107,107,.1);color:var(--coral)}
+.em-fb{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:.8rem;line-height:1.7;display:none;border:2px dashed}
+
+/* 润滑 */
+.lube-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:640px;margin:0 auto}
+.lube-side{background:var(--bg2);border-radius:14px;padding:20px;text-align:center;border:2px solid var(--border)}
+.lube-side h4{font-family:'ZCOOL KuaiLe',cursive;margin-bottom:8px}
+.lube-cvs{width:180px;height:100px;margin:6px auto}
+.lube-cvs canvas{width:100%;height:100%}
+.lube-stat{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--border);font-size:.78rem}
+.lube-stat .ls-l{color:var(--dim)}.lube-stat .ls-v{font-weight:700}
+
+/* 冷知识 */
+.facts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.fact-card{background:var(--card);border:3px solid var(--doodle);border-radius:16px;padding:18px;box-shadow:3px 3px 0 var(--doodle);transition:all .25s;position:relative;overflow:hidden}
+.fact-card:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--doodle)}
+.fact-card::after{content:attr(data-n);position:absolute;top:4px;right:10px;font-size:2.5rem;font-weight:900;opacity:.04;font-family:'ZCOOL KuaiLe',cursive}
+.fact-icon{font-size:1.8rem;margin-bottom:8px;display:block}
+.fact-card h4{font-size:.88rem;font-weight:700;margin-bottom:4px}
+.fact-card p{color:var(--dim);font-size:.78rem;line-height:1.7}
+
+/* 时间线 */
+.tl-wrap{max-width:600px;margin:0 auto;position:relative;padding-left:32px}
+.tl-wrap::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--teal),var(--amber),var(--coral));border-radius:2px}
+.tl-item{position:relative;margin-bottom:16px;padding:14px 18px;background:var(--card);border-radius:12px;border:2px solid var(--border);transition:all .3s}
+.tl-item:hover{transform:translateX(6px);box-shadow:3px 3px 0 var(--doodle)}
+.tl-item::before{content:'';position:absolute;left:-24px;top:18px;width:10px;height:10px;border-radius:50%;background:var(--teal);border:2px solid var(--bg)}
+.tl-item h4{font-size:.85rem;font-weight:700;margin-bottom:2px}
+.tl-item h4 span{color:var(--teal);font-size:.72rem;margin-left:6px;font-weight:400}
+.tl-item p{color:var(--dim);font-size:.78rem;line-height:1.7}
+
+/* 提示 */
+.tips-box{background:var(--card);border-radius:16px;border:3px solid var(--doodle);padding:22px;box-shadow:3px 3px 0 var(--doodle)}
+.tip-row{display:flex;gap:10px;padding:10px;margin-bottom:6px;background:var(--bg2);border-radius:10px;align-items:flex-start}
+.tip-row .te{font-size:1.1rem;flex-shrink:0}
+.tip-row p{font-size:.82rem;color:var(--dim);line-height:1.6}
+.tip-row strong{color:var(--orange)}
+
+/* Footer */
+.site-ft{text-align:center;padding:36px 20px;color:var(--dim);font-size:.75rem;border-top:3px dashed var(--border)}
+.site-ft .disc{opacity:.5;margin-top:4px;font-size:.66rem}
+
+.back-top{position:fixed;bottom:22px;right:22px;width:42px;height:42px;border-radius:50%;background:var(--teal);color:#fff;border:3px solid var(--doodle);font-size:1rem;cursor:pointer;z-index:99;opacity:0;transform:translateY(16px);transition:all .3s;box-shadow:2px 2px 0 var(--doodle)}
+.back-top.show{opacity:1;transform:translateY(0)}
+.back-top:hover{transform:translateY(-2px)}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:2px solid var(--doodle);padding:8px 20px;border-radius:12px;font-size:.82rem;z-index:300;box-shadow:3px 3px 0 var(--doodle);transition:transform .4s cubic-bezier(.22,1,.36,1);font-family:'ZCOOL KuaiLe',cursive}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
+.reveal.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){.guide-grid{grid-template-columns:repeat(3,1fr)}.facts-grid{grid-template-columns:repeat(2,1fr)}.lube-grid{grid-template-columns:1fr}.people-params{grid-template-columns:1fr 1fr}.detail-head{flex-direction:column;text-align:center}.detail-svg-box{margin:0 auto}}
+@media(max-width:600px){.guide-grid{grid-template-columns:repeat(2,1fr)}.facts-grid{grid-template-columns:1fr}.topnav .links{gap:8px}.topnav .links a{font-size:.68rem;padding:2px 6px}.sec{padding:40px 12px}.people-params{grid-template-columns:1fr}.risk-visual{flex-direction:column}.game-controls{flex-direction:column;align-items:stretch}}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div id="scrollBar"></div>
+
+<nav class="topnav z1" id="topnav">
+  <div class="brand">开塞露主理人</div>
+  <div class="links">
+    <a href="#guide">图鉴</a>
+    <a href="#game">小游戏</a>
+    <a href="#depth">深度训练</a>
+    <a href="#push">推注</a>
+    <a href="#risk">风险</a>
+    <a href="#people">人群</a>
+    <a href="#selftest">自测</a>
+    <a href="#timer">计时</a>
+    <a href="#emergency">禁忌</a>
+    <a href="#lube">润滑</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero z1">
+  <div class="hero-main-icon" id="heroIcon"></div>
+  <div class="hero-pinyin">kāi sāi lù</div>
+  <h1>欢迎来到<span class="accent">开塞露主理人</span></h1>
+  <p class="hero-sub">错误操作可能导致直肠黏膜损伤甚至穿孔。<br>通过趣味互动训练，让每一次使用都安全有效。<br><strong>开塞露仅为应急手段，治本需调整生活习惯。</strong></p>
+  <button class="dbtn teal" onclick="document.getElementById('guide').scrollIntoView({behavior:'smooth'})">开始训练 ↓</button>
+</section>
+
+<!-- 图鉴 -->
+<section class="sec z1" id="guide">
+  <div class="reveal"><h2 class="stitle">形状<span class="hi">图鉴</span></h2><p class="sdesc">点击卡片查看详细步骤与注意事项</p></div>
+  <div class="guide-grid reveal" id="guideGrid"></div>
+  <div class="detail-box reveal" id="detailBox"></div>
+</section>
+
+<!-- 医生小游戏 -->
+<section class="sec z1" id="game">
+  <div class="reveal"><h2 class="stitle">🩺 主理人<span class="hi">小游戏</span></h2><p class="sdesc">选择开塞露类型和用量，给病人正确使用！</p></div>
+  <div class="game-wrap reveal">
+    <div class="game-header">
+      <span style="font-size:1.5rem">🩺</span>
+      <div><h3>开塞露主理人模拟器</h3><span style="font-size:.75rem;color:var(--dim)">选对类型、用量和操作，治愈病人！</span></div>
+    </div>
+    <div class="game-body">
+      <canvas id="gameCanvas" width="700" height="400" style="touch-action:none"></canvas>
+      <div class="game-controls" id="gameControls">
+        <label>选择类型：</label>
+        <select id="gameType" onchange="gameSelectType()">
+          <option value="">-- 请选择 --</option>
+          <option value="0">锥形经典款(20ml)</option>
+          <option value="1">球形灌肠器(60ml)</option>
+          <option value="2">儿童专用款(10ml)</option>
+          <option value="3">弯头设计款(20ml)</option>
+          <option value="4">开塞露栓剂(2.7g)</option>
+        </select>
+        <label>用量：</label>
+        <select id="gameAmount">
+          <option value="">先选类型</option>
+        </select>
+        <button class="dbtn" id="gameActionBtn" onclick="gameAction()" disabled>确认操作</button>
+      </div>
+      <div class="game-msg" id="gameMsg">👤 病人来了！请选择合适的开塞露类型...</div>
+    </div>
+  </div>
+</section>
+
+<!-- 深度训练 -->
+<section class="sec z1" id="depth">
+  <div class="reveal"><h2 class="stitle">📏 插入深度<span class="hi">训练</span></h2><p class="sdesc">拖动开塞露，学习安全深度</p></div>
+  <div class="interact-box reveal">
+    <div class="interact-header"><span class="ih-emoji">📏</span><div><h3>3D解剖视角深度训练</h3></div></div>
+    <div class="interact-body">
+      <div class="depth-canvas-wrap"><canvas id="depthCanvas" width="480" height="340"></canvas></div>
+      <div class="depth-readout"><div>当前深度：<span class="depth-val" id="depthVal">0.0</span> cm</div><div class="depth-status" id="depthStatus"></div></div>
+      <div style="margin-top:12px;padding:12px 16px;background:rgba(0,168,150,.05);border:2px dashed var(--teal);border-radius:12px;font-size:.8rem;color:var(--dim);line-height:1.7">
+        <strong style="color:var(--teal)">安全要点：</strong>成人安全深度2-4cm（过括约肌即可），>6cm可能损伤直肠壶腹部。方向朝肚脐而非垂直向上——直肠有生理弯曲，错误角度易致黏膜撕裂。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 推注 -->
+<section class="sec z1" id="push">
+  <div class="reveal"><h2 class="stitle">💉 推注速度<span class="hi">模拟</span></h2><p class="sdesc">按住并缓慢滑动，模拟正确推注</p></div>
+  <div class="interact-box reveal">
+    <div class="interact-header"><span class="ih-emoji">💉</span><div><h3>压力感应式药液推注</h3></div></div>
+    <div class="interact-body" style="text-align:center">
+      <p style="color:var(--dim);font-size:.82rem;margin-bottom:12px">按住轨道从左向右<strong>匀速缓慢</strong>滑动</p>
+      <div class="push-track" id="pushTrack"><div class="push-fill slow" id="pushFill"></div><div class="push-label" id="pushLabel">按住滑动 →</div></div>
+      <div class="push-fb" id="pushFb"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 风险 -->
+<section class="sec z1" id="risk">
+  <div class="reveal"><h2 class="stitle">⚠️ 风险<span class="hi">沙盘</span></h2><p class="sdesc">选择错误操作，查看严重后果</p></div>
+  <div class="interact-box reveal">
+    <div class="interact-header"><span class="ih-emoji">⚠️</span><div><h3>错误操作后果可视化</h3></div></div>
+    <div class="interact-body">
+      <div class="risk-tabs" id="riskTabs"></div>
+      <div id="riskScene"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 人群 -->
+<section class="sec z1" id="people">
+  <div class="reveal"><h2 class="stitle">👥 特殊人群<span class="hi">适配</span></h2><p class="sdesc">不同人群参数不同，切换查看</p></div>
+  <div class="interact-box reveal">
+    <div class="interact-header"><span class="ih-emoji">👥</span><div><h3>人群专属参数</h3></div></div>
+    <div class="interact-body">
+      <div class="people-tabs" id="peopleTabs"></div>
+      <div id="peopleDetail"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 自测 -->
+<section class="sec z1" id="selftest">
+  <div class="reveal"><h2 class="stitle">🩺 便秘根源<span class="hi">自测</span></h2><p class="sdesc">6题分析你的便秘类型</p></div>
+  <div class="interact-box reveal">
+    <div class="interact-header"><span class="ih-emoji">🩺</span><div><h3>便秘类型分析</h3></div></div>
+    <div class="interact-body"><div class="sq-wrap" id="selfQuiz"></div></div>
+  </div>
+</section>
+
+<!-- 计时 -->
+<section class="sec z1" id="timer">
+  <div class="reveal"><h2 class="stitle">⏱️ 5分钟体位<span class="hi">挑战</span></h2><p class="sdesc">模拟注入后保持左侧卧位</p></div>
+  <div class="interact-box reveal">
+    <div class="interact-header"><span class="ih-emoji">⏱️</span><div><h3>体位保持计时</h3></div></div>
+    <div class="interact-body" style="text-align:center">
+      <div class="timer-circle" id="timerCircle"><div class="timer-time" id="timerTime">5:00</div><div class="timer-label">剩余时间</div></div>
+      <div class="timer-btns">
+        <button class="dbtn teal" id="tStart" onclick="startTimer()">开始挑战</button>
+        <button class="dbtn coral" id="tStop" onclick="stopTimer()" style="display:none">放弃</button>
+        <button class="dbtn" id="tReset" onclick="resetTimer()" style="display:none">重来</button>
+      </div>
+      <div class="timer-msg" id="timerMsg"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 禁忌 -->
+<section class="sec z1" id="emergency">
+  <div class="reveal"><h2 class="stitle">🚨 禁忌<span class="hi">判断</span></h2><p class="sdesc">面对突发症状，快速选择正确处理</p></div>
+  <div class="interact-box reveal">
+    <div class="interact-header"><span class="ih-emoji">🚨</span><div><h3>紧急判断训练</h3></div></div>
+    <div class="interact-body" id="emBody"></div>
+  </div>
+</section>
+
+<!-- 润滑 -->
+<section class="sec z1" id="lube">
+  <div class="reveal"><h2 class="stitle">🔬 润滑<span class="hi">实验</span></h2><p class="sdesc">对比有/无润滑的插入差异</p></div>
+  <div class="interact-box reveal">
+    <div class="interact-header"><span class="ih-emoji">🔬</span><div><h3>润滑对比实验</h3></div></div>
+    <div class="interact-body">
+      <div style="text-align:center;margin-bottom:12px"><button class="dbtn green" onclick="runLubeExp()">开始实验</button></div>
+      <div class="lube-grid">
+        <div class="lube-side"><h4 style="color:var(--coral)">❌ 无润滑</h4><div class="lube-cvs"><canvas id="lubeNoC" width="180" height="100"></canvas></div><div class="lube-stat"><span class="ls-l">摩擦系数</span><span class="ls-v" style="color:var(--coral)">0.85</span></div><div class="lube-stat"><span class="ls-l">损伤风险</span><span class="ls-v" style="color:var(--coral)">极高</span></div><div class="lube-stat"><span class="ls-l">不适感</span><span class="ls-v" style="color:var(--coral)">★★★★★</span></div></div>
+        <div class="lube-side"><h4 style="color:var(--green)">✅ 正确润滑</h4><div class="lube-cvs"><canvas id="lubeYesC" width="180" height="100"></canvas></div><div class="lube-stat"><span class="ls-l">摩擦系数</span><span class="ls-v" style="color:var(--green)">0.12</span></div><div class="lube-stat"><span class="ls-l">损伤风险</span><span class="ls-v" style="color:var(--green)">极低</span></div><div class="lube-stat"><span class="ls-l">不适感</span><span class="ls-v" style="color:var(--green)">★☆☆☆☆</span></div></div>
+      </div>
+      <div id="lubeVerdict" style="display:none;text-align:center;margin-top:14px;padding:12px 16px;border-radius:12px;background:rgba(123,198,126,.08);border:2px dashed var(--green);color:var(--green);font-size:.82rem;line-height:1.7;max-width:500px;margin-left:auto;margin-right:auto">
+        ✅ <strong>结论：</strong>管口涂少量药液可减少<strong>90%</strong>机械损伤，损伤风险降低<strong>3倍</strong>！
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 冷知识 -->
+<section class="sec z1" id="facts">
+  <div class="reveal"><h2 class="stitle">🤯 冷<span class="hi">知识</span></h2><p class="sdesc">颠覆认知的开塞露真相</p></div>
+  <div class="facts-grid reveal" id="factsGrid"></div>
+</section>
+
+<!-- 时间线 -->
+<section class="sec z1" id="timeline">
+  <div class="reveal"><h2 class="stitle">📜 演进<span class="hi">时间线</span></h2><p class="sdesc">与便秘斗争的3000年</p></div>
+  <div class="tl-wrap reveal" id="tlWrap"></div>
+</section>
+
+<!-- 提示 -->
+<section class="sec z1" id="tips">
+  <div class="reveal"><h2 class="stitle">⚠️ 温馨<span class="hi">提示</span></h2></div>
+  <div class="tips-box reveal" id="tipsBox"></div>
+</section>
+
+<footer class="site-ft z1">
+  <p>开塞露主理人 · 安全使用交互百科</p>
+  <p class="disc">⚠️ 仅供科普学习，不构成医疗建议。长期便秘者应尽早就医。</p>
+</footer>
+
+<button class="back-top z1" id="backTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div class="toast z1" id="toastEl"></div>
+
+<script>
+// ===== SVG开塞露图标（涂鸦风格·每个都不同） =====
+const SVG={
+cone:`<svg viewBox="0 0 60 90" fill="none" stroke="#3d3d3d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="32" width="32" height="38" rx="5" fill="#99f6e4" stroke="#3d3d3d"/><rect x="18" y="38" width="24" height="26" rx="3" fill="#fef3c7" stroke="#fbbf24" stroke-width="1"/><rect x="22" y="20" width="16" height="14" rx="3" fill="#99f6e4" stroke="#3d3d3d"/><path d="M25 20 L25 10 Q25 4 30 4 Q35 4 35 10 L35 20" fill="#5eead4" stroke="#3d3d3d"/><line x1="25" y1="8" x2="35" y2="8" stroke="#3d3d3d" stroke-width="1" stroke-dasharray="2 2"/><line x1="42" y1="46" x2="45" y2="46" stroke="#3d3d3d" stroke-width="1"/><line x1="42" y1="54" x2="45" y2="54" stroke="#3d3d3d" stroke-width="1"/><text x="46" y="56" fill="#888" font-size="4" stroke="none">20ml</text></svg>`,
+bulb:`<svg viewBox="0 0 60 90" fill="none" stroke="#3d3d3d" stroke-width="2" stroke-linecap="round"><ellipse cx="30" cy="60" rx="22" ry="22" fill="#a5f3fc" stroke="#3d3d3d"/><ellipse cx="30" cy="63" rx="16" ry="14" fill="#fef3c7" stroke="#fbbf24" stroke-width="1"/><ellipse cx="24" cy="54" rx="6" ry="5" fill="#fff" stroke="none" opacity=".3"/><rect x="27" y="14" width="6" height="28" rx="3" fill="#67e8f9" stroke="#3d3d3d"/><rect x="28" y="6" width="4" height="10" rx="2" fill="#22d3ee" stroke="#3d3d3d"/></svg>`,
+child:`<svg viewBox="0 0 60 90" fill="none" stroke="#3d3d3d" stroke-width="2" stroke-linecap="round"><rect x="18" y="38" width="24" height="32" rx="5" fill="#fda4af" stroke="#3d3d3d"/><rect x="22" y="44" width="16" height="20" rx="3" fill="#fef3c7" stroke="#fbbf24" stroke-width="1"/><rect x="24" y="26" width="12" height="14" rx="3" fill="#fda4af" stroke="#3d3d3d"/><rect x="27" y="10" width="6" height="18" rx="3" fill="#fb7185" stroke="#3d3d3d"/><circle cx="27" cy="52" r="1.5" fill="#fff" stroke="none"/><circle cx="33" cy="52" r="1.5" fill="#fff" stroke="none"/><path d="M28 56 Q30 58 32 56" stroke="#fff" stroke-width="1.2" fill="none"/><text x="22" y="68" fill="#e11d48" font-size="4" stroke="none">★</text></svg>`,
+bend:`<svg viewBox="0 0 60 90" fill="none" stroke="#3d3d3d" stroke-width="2" stroke-linecap="round"><rect x="14" y="38" width="32" height="34" rx="5" fill="#fde68a" stroke="#3d3d3d"/><rect x="18" y="44" width="24" height="22" rx="3" fill="#fef9c3" stroke="#fbbf24" stroke-width="1"/><rect x="22" y="26" width="16" height="14" rx="3" fill="#fde68a" stroke="#3d3d3d"/><path d="M22 26 L22 16 Q22 8 30 8 L42 8 Q48 8 48 14 L48 18" fill="#fbbf24" stroke="#3d3d3d" stroke-linejoin="round"/><path d="M32 4 L32 8" stroke="#d97706" stroke-width="1"/><path d="M30 6 L32 2 L34 6" stroke="#d97706" stroke-width="1" fill="none"/></svg>`,
+suppository:`<svg viewBox="0 0 60 90" fill="none" stroke="#3d3d3d" stroke-width="2" stroke-linecap="round"><rect x="10" y="14" width="40" height="66" rx="10" fill="#6b7280" stroke="#3d3d3d"/><rect x="14" y="18" width="32" height="58" rx="8" fill="#9ca3af"/><path d="M30 28 Q22 28 22 38 L22 56 Q22 66 30 66 Q38 66 38 56 L38 38 Q38 28 30 28 Z" fill="#fdba74" stroke="#3d3d3d"/><path d="M30 28 Q26 28 24 32 L30 24 L36 32 Q34 28 30 28 Z" fill="#f97316" stroke="#3d3d3d"/><ellipse cx="26" cy="44" rx="3" ry="8" fill="#fff" opacity=".15" stroke="none"/><line x1="10" y1="50" x2="50" y2="50" stroke="#4b5563" stroke-width="1" stroke-dasharray="3 2"/></svg>`
+};
+
+// 主理人图标
+const HERO_ICON=`<svg viewBox="0 0 180 180" fill="none" stroke="#3d3d3d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- 身体 -->
+  <rect x="60" y="80" width="60" height="50" rx="10" fill="#e0f2fe" stroke="#3d3d3d"/>
+  <!-- 白大褂 -->
+  <path d="M60 90 L50 130 L70 130 L70 100 Z" fill="#f0f0f0" stroke="#3d3d3d"/>
+  <path d="M120 90 L130 130 L110 130 L110 100 Z" fill="#f0f0f0" stroke="#3d3d3d"/>
+  <!-- 头 -->
+  <circle cx="90" cy="55" r="28" fill="#fde68a" stroke="#3d3d3d"/>
+  <!-- 眼镜 -->
+  <circle cx="80" cy="52" r="8" fill="none" stroke="#3d3d3d" stroke-width="2"/>
+  <circle cx="100" cy="52" r="8" fill="none" stroke="#3d3d3d" stroke-width="2"/>
+  <line x1="88" y1="52" x2="92" y2="52" stroke="#3d3d3d" stroke-width="2"/>
+  <!-- 笑容 -->
+  <path d="M82 62 Q90 70 98 62" stroke="#3d3d3d" stroke-width="2" fill="none"/>
+  <!-- 听诊器 -->
+  <circle cx="90" cy="95" r="5" fill="#6b7280" stroke="#3d3d3d"/>
+  <path d="M85 95 Q75 110 80 130" stroke="#6b7280" stroke-width="2" fill="none"/>
+  <path d="M95 95 Q105 110 100 130" stroke="#6b7280" stroke-width="2" fill="none"/>
+  <!-- 右手举开塞露 -->
+  <line x1="120" y1="90" x2="145" y2="60" stroke="#3d3d3d" stroke-width="2.5"/>
+  <!-- 小开塞露 -->
+  <rect x="140" y="35" width="16" height="24" rx="4" fill="#99f6e4" stroke="#3d3d3d"/>
+  <rect x="145" y="18" width="6" height="20" rx="3" fill="#5eead4" stroke="#3d3d3d"/>
+  <path d="M146 18 L146 12 Q146 8 148 8 Q150 8 150 12 L150 18" fill="#14b8a6" stroke="#3d3d3d"/>
+  <!-- 左手比赞 -->
+  <line x1="60" y1="90" x2="35" y2="70" stroke="#3d3d3d" stroke-width="2.5"/>
+  <line x1="35" y1="70" x2="30" y2="50" stroke="#3d3d3d" stroke-width="2.5"/>
+  <line x1="35" y1="70" x2="25" y2="55" stroke="#3d3d3d" stroke-width="2"/>
+  <!-- 腿 -->
+  <line x1="75" y1="130" x2="70" y2="165" stroke="#3d3d3d" stroke-width="2.5"/>
+  <line x1="105" y1="130" x2="110" y2="165" stroke="#3d3d3d" stroke-width="2.5"/>
+  <!-- 鞋 -->
+  <ellipse cx="68" cy="168" rx="10" ry="5" fill="#fde68a" stroke="#3d3d3d"/>
+  <ellipse cx="112" cy="168" rx="10" ry="5" fill="#fde68a" stroke="#3d3d3d"/>
+  <!-- 爱心 -->
+  <path d="M155 20 Q155 12 162 12 Q169 12 169 20 Q169 28 155 38 Q141 28 141 20 Q141 12 148 12 Q155 12 155 20 Z" fill="#ff6b6b" stroke="#3d3d3d" stroke-width="1.5"/>
+</svg>`;
+
+// 数据
+const SHAPES=[
+  {id:'cone',name:'锥形经典款',tag:'最常见·成人通用',color:'#0d9488',ml:'20ml',
+   intro:'药店最常见的那种——锥形管口+扁瓶体，内装20ml甘油溶液。简单有效，性价比之王。',
+   steps:[
+     {t:'准备阶段',d:'洗手，准备开塞露、纸巾和润滑剂。',tip:'用手握瓶体几分钟让药液升温至体温。'},
+     {t:'剪开封口',d:'沿管口标记线剪开，不要剪成斜口。',tip:'剪开后挤出1-2滴药液涂管口起润滑。'},
+     {t:'采取体位',d:'推荐左侧卧位，左腿伸直右腿弯曲。',tip:'利用直肠解剖走向，药液更易流入深处。'},
+     {t:'缓慢插入',d:'管口轻插肛门约2-3cm，遇阻力不停。',tip:'深呼吸放松。如疼痛立即停止。'},
+     {t:'挤压药液',d:'缓慢稳定挤压瓶体，挤完保持按压拔出。',tip:'不要松手再挤——空气入肠道引起腹胀。'},
+     {t:'保持体位',d:'保持侧卧5-10分钟。',tip:'忍住便意多等几分钟效果更好。'}
+   ]},
+  {id:'bulb',name:'球形灌肠器',tag:'大容量·严重便秘',color:'#0891b2',ml:'60-110ml',
+   intro:'小皮球连管子，容量60-110ml。挤压球体冲洗式送入灌肠液，对干硬粪便形成"冲刷"效果。',
+   steps:[
+     {t:'配制灌肠液',d:'按说明配制温热灌肠液，约37℃。',tip:'手腕内侧测温，温热不烫即可。'},
+     {t:'灌入球体',d:'灌肠液吸入球体，排管内空气。',tip:'确保管内无气泡。'},
+     {t:'润滑管口',d:'管口及前段涂足量润滑剂。',tip:'灌肠管比普通开塞露粗，润滑更重要。'},
+     {t:'插入并灌液',d:'缓慢插入5-8cm，匀速挤压球体。',tip:'想象慢慢挤牙膏——匀速稳定。'},
+     {t:'保留与排便',d:'保留5-10分钟再排便。',tip:'膝胸位利用重力帮助液体流向深处。'}
+   ]},
+  {id:'child',name:'儿童专用款',tag:'温和型·婴幼儿',color:'#e11d48',ml:'5-10ml',
+   intro:'宝宝专用！管口更细、容量更小，甘油浓度调整减少刺激。每一步需更多耐心。',
+   steps:[
+     {t:'安抚宝宝',d:'让宝宝安静，轻抚腹部。',tip:'选吃饱后1-2小时操作。'},
+     {t:'准备体位',d:'宝宝仰卧抬腿呈换尿布姿势。',tip:'垫隔尿垫，把开塞露捂热。'},
+     {t:'极浅插入',d:'插入深度仅1-1.5cm。',tip:'宝宝肠壁薄，粗暴操作可致穿孔！'},
+     {t:'少量注入',d:'缓慢注入5-10ml（遵医嘱）。',tip:'不同月龄用量不同，宁少勿多。'},
+     {t:'轻揉腹部',d:'顺时针轻揉宝宝腹部。',tip:'以肚脐为中心画圈，力度极轻。'}
+   ]},
+  {id:'bend',name:'弯头设计款',tag:'人体工学·直肠适配',color:'#d97706',ml:'20ml',
+   intro:'直肠有自然弯曲，弯头设计贴合生理弧度，减少刺激和不适感。',
+   steps:[
+     {t:'识别弯曲方向',d:'弯头朝向腹部方向（前方）。',tip:'就像钥匙插锁孔——方向对了才顺畅。'},
+     {t:'充分润滑',d:'管口和前段涂润滑剂。',tip:'弯头接触面积略大，润滑更要到位。'},
+     {t:'沿弯曲方向插入',d:'缓慢旋转式插入。',tip:'旋转插入比直推更易找对角度。'},
+     {t:'注入并保持',d:'注入后保持5-10分钟。',tip:'药液能到更高位粪便，效果更好。'}
+   ]},
+  {id:'suppository',name:'开塞露栓剂',tag:'无液体·更干净',color:'#ea580c',ml:'2.7g/枚',
+   intro:'子弹头固体甘油栓剂，插入后体温下融化释放药物。无需挤液体，起效稍慢。',
+   steps:[
+     {t:'取出栓剂',d:'从包装取出，太软冷藏5分钟。',tip:'冷藏是"回硬"经典技巧。'},
+     {t:'可套指套',d:'戴一次性指套。',tip:'没有指套可用保鲜膜包裹食指。'},
+     {t:'插入栓剂',d:'尖端朝前推入2-3cm。',tip:'推入后合拢双腿防滑出。'},
+     {t:'等待融化',d:'保持侧卧15-30分钟。',tip:'适合怕液体感的人群。'}
+   ]}
+];
+
+const RISKS=[
+  {name:'暴力插入',icon:'💥',desc:'强行插入可能直接损伤直肠黏膜，导致出血甚至穿孔。',stat:'32%的直肠损伤因操作粗暴导致',barPct:85,barColor:'#ff6b6b',tabColor:'#ff6b6b'},
+  {name:'长期依赖',icon:'🔄',desc:'长期依赖，肠道自主排便能力持续下降。',stat:'连续使用超3天可能引发肠道依赖',barPct:70,barColor:'#ff9f43',tabColor:'#ff9f43'},
+  {name:'不排空气',icon:'💨',desc:'管内空气入肠道引起腹胀、不适甚至痉挛。',stat:'挤少量药液排气即可完全避免',barPct:60,barColor:'#4ecdc4',tabColor:'#4ecdc4'},
+  {name:'温度过低',icon:'🧊',desc:'冰冷药液刺激肠道引发痉挛性疼痛。',stat:'捂热至37℃仅需2-3分钟',barPct:55,barColor:'#a29bfe',tabColor:'#a29bfe'}
+];
+
+const PEOPLE=[
+  {name:'🧑 成人',depth:'2-4cm',vol:'20ml',speed:'10-15秒',warn:'成人通用参数，插入深度不超过6cm。',color:'#4ecdc4'},
+  {name:'👶 儿童',depth:'1-1.5cm',vol:'5-10ml',speed:'5-10秒',warn:'婴幼儿直肠壁更薄！必须使用专用型号，深度≤1.5cm，用量严格遵医嘱。',color:'#a29bfe'},
+  {name:'👴 老人',depth:'2-3cm',vol:'10-20ml',speed:'15-20秒',warn:'肠壁弹性差、黏膜薄，操作需格外轻柔，建议减量。',color:'#ffc857'},
+  {name:'🤰 孕妇',depth:'2-3cm',vol:'遵医嘱',speed:'10-15秒',warn:'妊娠期使用前必须咨询医生！避免刺激引发宫缩。',color:'#ff8fab'}
+];
+
+const SQ=[
+  {q:'你多久排便一次？',opts:['每天1次+','2-3天1次','4-5天1次','超5天1次'],sc:[0,1,2,3]},
+  {q:'粪便状态通常是？',opts:['软而成形','略硬结','干硬颗粒','非常干硬'],sc:[0,1,2,3]},
+  {q:'每天饮水量？',opts:['>1.5L','1-1.5L','0.5-1L','<0.5L'],sc:[0,1,2,3]},
+  {q:'膳食纤维摄入？',opts:['充足','一般','较少','几乎没有'],sc:[0,1,2,3]},
+  {q:'使用开塞露频率？',opts:['从未','偶尔(<1次/月)','经常(1-3次/周)','每次都用'],sc:[0,1,2,3]},
+  {q:'运动量如何？',opts:['每天30分钟+','每周3-4次','偶尔','几乎不运动'],sc:[0,1,2,3]}
+];
+
+const EMERG=[
+  {symptom:'便血',desc:'使用后发现大便带血',correct:'stop',case:'浙江一名老人因强行使用开塞露导致直肠穿孔进入ICU。便血是黏膜损伤信号！',okText:'立即停用并就医',wrongText:'继续观察'},
+  {symptom:'剧烈腹痛',desc:'推注后持续剧烈腹痛',correct:'stop',case:'剧烈腹痛可能是肠穿孔信号。某患者忽视腹痛延误治疗最终需手术。',okText:'立即停用并就医',wrongText:'忍一忍'},
+  {symptom:'药液无法注入',desc:'推注受阻，药液无法进入',correct:'stop',case:'可能方向错误顶到肠壁或存在肠梗阻，强行推注可能穿孔。',okText:'停止并就医',wrongText:'加大力度'},
+  {symptom:'孕期便秘',desc:'孕妇想用开塞露',correct:'consult',case:'可能刺激引发宫缩，孕晚期尤其危险。某孕妇自行使用后差点早产。',okText:'先咨询医生',wrongText:'直接使用'}
+];
+
+const FACTS=[
+  {icon:'🏺',title:'灌肠已有3000年历史',text:'古埃及法老有"御用灌肠官"！',color:'#4ecdc4'},
+  {icon:'🧪',title:'核心原理是渗透压',text:'甘油"吸"水软化便便，不是靠润滑。',color:'#ffc857'},
+  {icon:'🚫',title:'长期用训练肠道躺平',text:'超7天肠道自主排便能力显著下降。',color:'#ff6b6b'},
+  {icon:'👑',title:'路易十四灌肠2000次',text:'上朝时都在灌肠——移动办公先驱。',color:'#a29bfe'},
+  {icon:'🌡️',title:'温度是隐藏关键',text:'冰凉药液引发痉挛，捂热仅2-3分钟。',color:'#ff9f43'},
+  {icon:'💡',title:'润滑减少90%损伤',text:'最简单却最常被忽略的安全步骤。',color:'#7bc67e'}
+];
+
+const TL=[
+  {era:'古埃及',year:'~1500 BC',t:'法老有"灌肠守护者"，用芦苇管+动物膀胱。'},
+  {era:'古希腊罗马',year:'~400 BC',t:'罗马公共浴场设灌肠室——"社交灌肠"。'},
+  {era:'中世纪',year:'500-1500 AD',t:'灌肠被称为"万能疗法"。'},
+  {era:'19世纪',year:'1800s',t:'橡胶引入，球形灌肠器诞生。'},
+  {era:'20世纪',year:'1950s',t:'塑料锥形开塞露问世，甘油成标准配方。'},
+  {era:'21世纪',year:'2000s+',t:'儿童/弯头/栓剂型……精细化时代。'}
+];
+
+const TIPS=[
+  {e:'🏥',l:'就医优先',t:'便秘超2周或伴便血腹痛消瘦，立即就医。'},
+  {e:'⏰',l:'不宜长期',t:'连续使用勿超7天。'},
+  {e:'🧼',l:'注意卫生',t:'一次性产品勿重复使用。'},
+  {e:'👶',l:'儿童谨慎',t:'婴幼儿必须用专用款。'},
+  {e:'🤰',l:'孕妇咨询',t:'使用前先咨询产科医生。'},
+  {e:'💧',l:'保持体位',t:'注入后保持侧卧5-10分钟。'}
+];
+
+// ===== 初始化 =====
+document.addEventListener('DOMContentLoaded',()=>{
+  drawBgCanvas();
+  document.getElementById('heroIcon').innerHTML=HERO_ICON;
+  buildGuide();buildRisk();buildPeople();buildSelfQuiz();buildEmergency();buildFacts();buildTimeline();buildTips();
+  initDepth();initPush();initGame();initScroll();
+});
+
+// ===== 手绘直肠背景（多彩版） =====
+function drawBgCanvas(){
+  const c=document.getElementById('bgCanvas');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;draw()}
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    // 多彩简笔直肠形状
+    const shapes=[
+      {x:c.width*.1,y:c.height*.15,h:180,color:'#4ecdc4'},{x:c.width*.85,y:c.height*.25,h:200,color:'#ffc857'},
+      {x:c.width*.5,y:c.height*.7,h:160,color:'#ff8fab'},{x:c.width*.2,y:c.height*.8,h:140,color:'#a29bfe'},
+      {x:c.width*.75,y:c.height*.6,h:170,color:'#7bc67e'},{x:c.width*.4,y:c.height*.1,h:130,color:'#ff9f43'},
+      {x:c.width*.9,y:c.height*.85,h:150,color:'#ff6b6b'},{x:c.width*.05,y:c.height*.5,h:190,color:'#6c5ce7'}
+    ];
+    shapes.forEach(s=>{
+      ctx.beginPath();
+      ctx.moveTo(s.x,s.y);
+      ctx.quadraticCurveTo(s.x-15,s.y+s.h*.4,s.x+8,s.y+s.h*.6);
+      ctx.quadraticCurveTo(s.x+25,s.y+s.h*.8,s.x-5,s.y+s.h);
+      const clr=s.color||'#e5dcc8';
+      ctx.strokeStyle=clr+'60';ctx.lineWidth=2.5;ctx.stroke();
+      // 小圆圈标注
+      ctx.beginPath();ctx.arc(s.x-5,s.y+s.h,4,0,Math.PI*2);
+      ctx.fillStyle=clr+'30';ctx.fill();ctx.strokeStyle=clr+'50';ctx.stroke();
+    });
+    // 多彩涂鸦装饰
+    ctx.font='16px serif';
+    const emojis=['💧','🧴','⚕️','✏️','📝','💊','🩺','❤️'];
+    const emojiColors=['#4ecdc450','#ffc85750','#ff8fab50','#a29bfe50','#7bc67e50','#ff9f4350','#ff6b6b50','#6c5ce750'];
+    for(let i=0;i<12;i++){
+      ctx.fillStyle=emojiColors[i%8];
+      ctx.fillText(emojis[i%8],Math.random()*c.width,Math.random()*c.height);
+    }
+  }
+  resize();window.addEventListener('resize',resize);
+}
+
+// 图鉴
+function buildGuide(){
+  const cardColors=['#4ecdc4','#0891b2','#a29bfe','#ffc857','#ff9f43'];
+  const cardBgs=['rgba(78,205,196,.06)','rgba(8,145,178,.06)','rgba(162,155,254,.06)','rgba(255,200,87,.06)','rgba(255,159,67,.06)'];
+  document.getElementById('guideGrid').innerHTML=SHAPES.map((s,i)=>`<div class="guide-card" onclick="selShape(${i})" style="--cc:${cardColors[i]};--cbg:${cardBgs[i]}"><div class="guide-svg">${SVG[s.id]}</div><div class="guide-name">${s.name}</div><span class="guide-ml" style="background:${cardBgs[i]};color:${cardColors[i]};border-color:${cardColors[i]}30">${s.ml}</span></div>`).join('');
+}
+function selShape(i){
+  const s=SHAPES[i];
+  const cardColors=['#4ecdc4','#0891b2','#a29bfe','#ffc857','#ff9f43'];
+  document.querySelectorAll('.guide-card').forEach((c,ci)=>c.classList.toggle('active',ci===i));
+  // 设置active卡片边框色
+  document.querySelectorAll('.guide-card.active').forEach(c=>c.style.borderColor=cardColors[i]);
+  document.querySelectorAll('.guide-card:not(.active)').forEach(c=>c.style.borderColor='');
+  const box=document.getElementById('detailBox');
+  box.innerHTML=`<div class="detail-head" style="background:${cardColors[i]}08"><div class="detail-svg-box">${SVG[s.id]}</div><div class="detail-info"><h3>${s.name}</h3><span class="dtag" style="background:${cardColors[i]}">${s.tag}</span><p class="dintro">${s.intro}</p></div></div><div class="steps-box">${s.steps.map((st,si)=>`<div class="step-row" onclick="this.classList.toggle('open')" style="border-left-color:${cardColors[i]}"><div class="step-num" style="background:${cardColors[i]}">${si+1}</div><div class="step-body"><h4>${st.t}</h4><p>${st.d}</p><div class="step-tip"><div class="step-tip-inner">💡 ${st.tip}</div></div></div></div>`).join('')}</div>`;
+  box.classList.remove('show');void box.offsetWidth;box.classList.add('show');
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});toast(`已选择「${s.name}」`);
+}
+
+// ===== 医生小游戏 =====
+let gameState='choose',gameTypeIdx=-1,gamePatientIdx=0,gameScore=0,gameRound=0;
+const PATIENTS=[
+  {name:'张大叔',type:'adult',symptom:'3天没排便，腹胀难受',correctType:0,correctAmt:'20'},
+  {name:'李小宝',type:'child',symptom:'宝宝2天没拉臭臭，哭闹不安',correctType:2,correctAmt:'5'},
+  {name:'王奶奶',type:'elderly',symptom:'一周未排便，非常痛苦',correctType:1,correctAmt:'60'},
+  {name:'赵孕妇',type:'pregnant',symptom:'孕期便秘严重',correctType:-1,correctAmt:'consult'},
+  {name:'刘先生',type:'adult',symptom:'直肠弯曲导致常规开塞露不适',correctType:3,correctAmt:'20'}
+];
+function initGame(){gameRound=0;gameScore=0;nextPatient()}
+function nextPatient(){
+  if(gameRound>=PATIENTS.length){gameState='end';drawGame();return}
+  gamePatientIdx=gameRound;gameState='choose';
+  document.getElementById('gameType').value='';
+  document.getElementById('gameAmount').innerHTML='<option value="">先选类型</option>';
+  document.getElementById('gameActionBtn').disabled=true;
+  document.getElementById('gameMsg').innerHTML=`👤 第${gameRound+1}位病人来了！`;
+  drawGame();
+}
+function gameSelectType(){
+  const v=document.getElementById('gameType').value;
+  const btn=document.getElementById('gameActionBtn');
+  const amtSel=document.getElementById('gameAmount');
+  // 用量下拉默认加个"请选择"
+  if(v===''){btn.disabled=true;amtSel.innerHTML='<option value="">先选类型</option>';return}
+  btn.disabled=true; // 选完类型后必须再选用量才能确认
+  const idx=parseInt(v);
+  if(idx===4){amtSel.innerHTML='<option value="">-- 选用量 --</option><option value="1">1枚(2.7g)</option><option value="2">2枚</option>'}
+  else if(idx===2){amtSel.innerHTML='<option value="">-- 选用量 --</option><option value="5">5ml</option><option value="10">10ml</option><option value="20">20ml(成人量！)</option>'}
+  else if(idx===1){amtSel.innerHTML='<option value="">-- 选用量 --</option><option value="60">60ml</option><option value="110">110ml</option>'}
+  else{amtSel.innerHTML='<option value="">-- 选用量 --</option><option value="10">10ml</option><option value="20">20ml</option><option value="40">40ml</option>'}
+  // 孕妇模式：添加"咨询医生"选项
+  const p=PATIENTS[gamePatientIdx];
+  if(p.type==='pregnant'){amtSel.innerHTML+='<option value="consult">📋 先咨询医生</option>'}
+  // 监听用量选择
+  amtSel.onchange=function(){btn.disabled=(amtSel.value==='')};
+}
+function gameAction(){
+  const typeIdx=parseInt(document.getElementById('gameType').value);
+  const amt=document.getElementById('gameAmount').value;
+  const p=PATIENTS[gamePatientIdx];
+  const msg=document.getElementById('gameMsg');
+  let isCorrect=false;let feedback='';
+  // 赵孕妇特殊处理
+  if(p.type==='pregnant'){
+    if(amt==='consult'){feedback='✅ 正确！孕妇使用前必须咨询医生，避免刺激引发宫缩！';isCorrect=true;gameScore++}
+    else{feedback='❌ 错误！孕妇使用开塞露可能引发宫缩，必须先咨询医生！';isCorrect=false}
+  }else{
+    if(typeIdx!==p.correctType){feedback=`❌ 类型选错了！应该用「${SHAPES[p.correctType].name}」。`;isCorrect=false}
+    else if(amt!==p.correctAmt&&p.type!=='elderly'){feedback=`❌ 用量不对！正确用量是${p.correctAmt==='consult'?'咨询医生':p.correctAmt+'ml'}。`;isCorrect=false}
+    else{feedback=`✅ 正确！${p.name}用「${SHAPES[p.correctType].name}」${p.correctAmt==='consult'?'咨询医生':p.correctAmt+'ml'}，操作得当！`;isCorrect=true;gameScore++}
+  }
+  gameState=isCorrect?'correct':'wrong';
+  msg.innerHTML=feedback;
+  drawGame();
+  gameRound++;
+  const delay=isCorrect?2500:3000;
+  setTimeout(()=>{
+    if(gameRound<PATIENTS.length)nextPatient();
+    else{gameState='end';drawGame();msg.innerHTML=`🎉 游戏结束！得分：${gameScore}/${PATIENTS.length}`}
+  },delay);
+}
+function drawGame(){
+  const c=document.getElementById('gameCanvas');
+  const ctx=c.getContext('2d');
+  const rect=c.getBoundingClientRect();
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  c.width=rect.width*dpr;c.height=rect.height*dpr;
+  ctx.scale(dpr,dpr);
+  const w=rect.width,h=rect.height;
+  const sc=Math.min(w/700,h/400);
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#fffdf7';ctx.fillRect(0,0,w,h);
+  ctx.save();ctx.scale(sc,sc);
+  const bw=700,bh=400;
+  ctx.strokeStyle='#3d3d3d';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';
+
+  // 顶部彩虹条纹
+  const stripe=ctx.createLinearGradient(0,0,bw,0);
+  stripe.addColorStop(0,'#ff6b6b');stripe.addColorStop(0.2,'#ffc857');stripe.addColorStop(0.4,'#7bc67e');stripe.addColorStop(0.6,'#4ecdc4');stripe.addColorStop(0.8,'#a29bfe');stripe.addColorStop(1,'#ff8fab');
+  ctx.fillStyle=stripe;ctx.fillRect(0,0,bw,6);
+
+  if(gameState==='end'){
+    const endGrad=ctx.createLinearGradient(0,0,bw,bh);
+    endGrad.addColorStop(0,'#dbeafe');endGrad.addColorStop(0.5,'#fef3c7');endGrad.addColorStop(1,'#d1fae5');
+    ctx.fillStyle=endGrad;ctx.fillRect(0,6,bw,bh-6);
+    ctx.font='56px serif';ctx.textAlign='center';
+    ctx.fillText(gameScore>=4?'🏆':gameScore>=2?'💪':'📚',bw/2,bh/2-65);
+    ctx.font='bold 28px "ZCOOL KuaiLe",cursive';ctx.fillStyle='#3d3d3d';ctx.textAlign='center';
+    ctx.fillText('游戏结束！',bw/2,bh/2-20);
+    ctx.font='bold 22px "ZCOOL KuaiLe",cursive';ctx.fillStyle='#0d9488';
+    ctx.fillText(`得分：${gameScore} / ${PATIENTS.length}`,bw/2,bh/2+15);
+    ctx.font='16px "ZCOOL KuaiLe",cursive';ctx.fillStyle='#666';
+    const msgs=['再接再厉，多练习几次！','还不错，继续加油！','很棒，你是合格的主理人！','太厉害了，满分通关！🎉'];
+    ctx.fillText(msgs[Math.min(gameScore,msgs.length-1)],bw/2,bh/2+50);
+    // 彩色星星装饰
+    ctx.font='24px serif';
+    ctx.fillText('⭐',bw/2-120,bh/2+85);ctx.fillText('⭐',bw/2-40,bh/2+90);ctx.fillText('⭐',bw/2+40,bh/2+85);ctx.fillText('⭐',bw/2+120,bh/2+90);
+    // 重新开始按钮（Canvas内绘制）
+    ctx.fillStyle='#0d9488';roundRect(ctx,bw/2-70,bh/2+100,140,40,14);ctx.fill();
+    ctx.strokeStyle='#3d3d3d';ctx.lineWidth=2;roundRect(ctx,bw/2-70,bh/2+100,140,40,14);ctx.stroke();
+    ctx.font='bold 16px "ZCOOL KuaiLe",cursive';ctx.fillStyle='#fff';ctx.textAlign='center';
+    ctx.fillText('🔄 重新开始',bw/2,bh/2+126);
+    ctx.restore();
+    // 给Canvas加点击事件重新开始
+    c.onclick=function(e){
+      const cr=c.getBoundingClientRect();
+      const cx=(e.clientX-cr.left)/sc,cy=(e.clientY-cr.top)/sc;
+      if(cx>bw/2-70&&cx<bw/2+70&&cy>bh/2+100&&cy<bh/2+140){
+        c.onclick=null;initGame();
+        document.getElementById('gameMsg').innerHTML='👤 第1位病人来了！';
+      }
+    };
+    return;
+  }
+
+  const p=PATIENTS[gamePatientIdx];
+  // 画医生
+  drawDoctor(ctx,100,bh/2-20);
+  // 画病人
+  drawPatient(ctx,bw-150,bh/2-20,p.type);
+
+  // 答对庆祝画面
+  if(gameState==='correct'){
+    // 绿色背景光晕
+    ctx.fillStyle='rgba(123,198,126,0.15)';ctx.fillRect(0,6,bw,bh-46);
+    // 医生开心表情（已有）
+    // 彩色星星和爱心飘散
+    ctx.font='28px serif';ctx.textAlign='center';
+    const t=Date.now()/200;
+    for(let i=0;i<6;i++){
+      const sx=120+i*90+Math.sin(t+i)*15;
+      const sy=60+Math.cos(t+i*0.7)*20;
+      ctx.fillText(['⭐','🎉','✨','💖','🌟','👍'][i],sx,sy);
+    }
+    ctx.font='bold 22px "ZCOOL KuaiLe",cursive';ctx.fillStyle='#7bc67e';ctx.textAlign='center';
+    ctx.fillText('✅ 回答正确！太棒了！',bw/2,bh/2+80);
+  }
+
+  // 答错提示画面
+  if(gameState==='wrong'){
+    ctx.fillStyle='rgba(255,107,107,0.08)';ctx.fillRect(0,6,bw,bh-46);
+    ctx.font='bold 20px "ZCOOL KuaiLe",cursive';ctx.fillStyle='#ff6b6b';ctx.textAlign='center';
+    ctx.fillText('❌ 再想想哦~',bw/2,bh/2+80);
+  }
+
+  // 对话框
+  if(gameState==='choose'){
+    const bubbleColors=['#dbeafe','#fef3c7','#d1fae5','#fce7f3','#ede9fe'];
+    const bColor=bubbleColors[gameRound%5];
+    ctx.fillStyle=bColor;ctx.strokeStyle='#3d3d3d';ctx.lineWidth=2;
+    roundRect(ctx,180,40,320,90,14);ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(260,130);ctx.lineTo(250,150);ctx.lineTo(280,130);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.font='bold 13px "Noto Sans SC",sans-serif';ctx.fillStyle='#3d3d3d';ctx.textAlign='left';
+    ctx.fillText(`${p.name}：${p.symptom}`,200,70);
+    ctx.font='11px "Noto Sans SC",sans-serif';ctx.fillStyle='#888';
+    ctx.fillText(`人群类型：${p.type==='adult'?'成人':p.type==='child'?'儿童':p.type==='elderly'?'老人':'孕妇'}`,200,95);
+  }
+
+  // 底部状态栏
+  const grad=ctx.createLinearGradient(0,0,bw,0);
+  grad.addColorStop(0,'#dbeafe');grad.addColorStop(0.5,'#fef3c7');grad.addColorStop(1,'#d1fae5');
+  ctx.fillStyle=grad;ctx.fillRect(0,bh-40,bw,40);
+  ctx.strokeStyle='#3d3d3d';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,bh-40);ctx.lineTo(bw,bh-40);ctx.stroke();
+  ctx.font='bold 13px "ZCOOL KuaiLe",cursive';ctx.fillStyle='#3d3d3d';ctx.textAlign='center';
+  ctx.fillText(`第 ${Math.min(gameRound+1,PATIENTS.length)}/${PATIENTS.length} 位  |  得分：${gameScore}`,bw/2,bh-15);
+  ctx.restore();
+}
+function drawDoctor(ctx,x,y){
+  ctx.save();ctx.strokeStyle='#3d3d3d';ctx.lineWidth=2.5;
+  // 身体-蓝绿色
+  ctx.fillStyle='#4ecdc4';ctx.fillRect(x-15,y,30,35);ctx.strokeRect(x-15,y,30,35);
+  // 白大褂
+  ctx.fillStyle='#f0f0f0';
+  ctx.beginPath();ctx.moveTo(x-15,y+8);ctx.lineTo(x-25,y+35);ctx.lineTo(x-8,y+35);ctx.lineTo(x-8,y+15);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+15,y+8);ctx.lineTo(x+25,y+35);ctx.lineTo(x+8,y+35);ctx.lineTo(x+8,y+15);ctx.closePath();ctx.fill();ctx.stroke();
+  // 口袋+笔
+  ctx.fillStyle='#ffc857';ctx.fillRect(x+2,y+18,8,10);ctx.strokeRect(x+2,y+18,8,10);
+  ctx.beginPath();ctx.moveTo(x+6,y+18);ctx.lineTo(x+6,y+12);ctx.strokeStyle='#ff6b6b';ctx.lineWidth=1.5;ctx.stroke();ctx.strokeStyle='#3d3d3d';ctx.lineWidth=2.5;
+  // 头
+  ctx.fillStyle='#fde68a';ctx.beginPath();ctx.arc(x,y-18,16,0,Math.PI*2);ctx.fill();ctx.stroke();
+  // 头发
+  ctx.fillStyle='#5d4037';ctx.beginPath();ctx.arc(x,y-28,12,Math.PI,2*Math.PI);ctx.fill();ctx.stroke();
+  // 眼镜
+  ctx.beginPath();ctx.arc(x-6,y-20,5,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.arc(x+6,y-20,5,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x-1,y-20);ctx.lineTo(x+1,y-20);ctx.stroke();
+  // 笑
+  ctx.beginPath();ctx.arc(x,y-13,5,0.1*Math.PI,0.9*Math.PI);ctx.stroke();
+  // 右手拿开塞露（彩色）
+  ctx.beginPath();ctx.moveTo(x+15,y+8);ctx.lineTo(x+35,y-10);ctx.stroke();
+  ctx.fillStyle='#a29bfe';ctx.fillRect(x+30,y-28,10,16);ctx.strokeRect(x+30,y-28,10,16);
+  ctx.fillStyle='#6c5ce7';ctx.fillRect(x+33,y-38,4,12);ctx.strokeRect(x+33,y-38,4,12);
+  // 左手
+  ctx.beginPath();ctx.moveTo(x-15,y+8);ctx.lineTo(x-30,y+20);ctx.stroke();
+  // 腿
+  ctx.beginPath();ctx.moveTo(x-6,y+35);ctx.lineTo(x-8,y+55);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+6,y+35);ctx.lineTo(x+8,y+55);ctx.stroke();
+  // 鞋子（红色）
+  ctx.fillStyle='#ff6b6b';
+  ctx.beginPath();ctx.ellipse(x-10,y+58,8,4,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.ellipse(x+10,y+58,8,4,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.restore();
+}
+function drawPatient(ctx,x,y,type){
+  ctx.save();ctx.strokeStyle='#3d3d3d';ctx.lineWidth=2.5;
+  const colors={adult:'#ffc857',child:'#a29bfe',elderly:'#4ecdc4',pregnant:'#ff8fab'};
+  const skinColors={adult:'#fde68a',child:'#fde68a',elderly:'#f5f0e8',pregnant:'#fde68a'};
+  const shoeColors={adult:'#ff9f43',child:'#ff6b6b',elderly:'#888',pregnant:'#a29bfe'};
+  const sizes={adult:1,child:.7,elderly:.9,pregnant:1};
+  const s=sizes[type]||1;
+  // 身体
+  ctx.fillStyle=colors[type]||'#ffc857';
+  ctx.fillRect(x-15*s,y,30*s,35*s);ctx.strokeRect(x-15*s,y,30*s,35*s);
+  // 头
+  ctx.fillStyle=skinColors[type]||'#fde68a';
+  ctx.beginPath();ctx.arc(x,y-16*s,14*s,0,Math.PI*2);ctx.fill();ctx.stroke();
+  // 头发
+  if(type==='child'){ctx.fillStyle='#5d4037';ctx.beginPath();ctx.arc(x,y-24*s,10*s,Math.PI,2*Math.PI);ctx.fill();ctx.stroke()}
+  if(type==='elderly'){ctx.fillStyle='#ccc';ctx.beginPath();ctx.arc(x,y-24*s,10*s,Math.PI,2*Math.PI);ctx.fill();ctx.stroke()}
+  if(type==='pregnant'){ctx.fillStyle='#5d4037';ctx.beginPath();ctx.arc(x,y-24*s,11*s,0.8*Math.PI,2.2*Math.PI);ctx.fill();ctx.stroke()}
+  // 表情
+  ctx.fillStyle='#3d3d3d';
+  ctx.beginPath();ctx.arc(x-4*s,y-18*s,2*s,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(x+4*s,y-18*s,2*s,0,Math.PI*2);ctx.fill();
+  // 苦恼嘴
+  ctx.beginPath();ctx.arc(x,y-10*s,4*s,1.1*Math.PI,1.9*Math.PI);ctx.stroke();
+  // 腿
+  ctx.beginPath();ctx.moveTo(x-6*s,y+35*s);ctx.lineTo(x-8*s,y+55*s);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+6*s,y+35*s);ctx.lineTo(x+8*s,y+55*s);ctx.stroke();
+  // 鞋子（不同颜色）
+  ctx.fillStyle=shoeColors[type]||'#ff9f43';
+  ctx.beginPath();ctx.ellipse(x-10*s,y+58*s,8*s,4*s,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.ellipse(x+10*s,y+58*s,8*s,4*s,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  // 孕妇肚子
+  if(type==='pregnant'){ctx.fillStyle='#ff8fab';ctx.beginPath();ctx.ellipse(x,y+18*s,18*s,14*s,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    // 小爱心
+    ctx.fillStyle='#ff6b6b';ctx.font='12px serif';ctx.fillText('❤',x-6*s,y+20*s)}
+  // 老人拐杖
+  if(type==='elderly'){ctx.strokeStyle='#ffc857';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x+22*s,y);ctx.lineTo(x+24*s,y+50*s);ctx.stroke();ctx.beginPath();ctx.arc(x+20*s,y,7*s,Math.PI,1.7*Math.PI);ctx.stroke();ctx.strokeStyle='#3d3d3d';ctx.lineWidth=2.5}
+  // 儿童玩具
+  if(type==='child'){ctx.fillStyle='#ff6b6b';ctx.beginPath();ctx.arc(x-22*s,y+15*s,6*s,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#ffc857';ctx.beginPath();ctx.arc(x-22*s,y+15*s,3*s,0,Math.PI*2);ctx.fill();ctx.stroke()}
+  // 成人公文包
+  if(type==='adult'){ctx.fillStyle='#a29bfe';ctx.fillRect(x+20*s,y+20*s,14*s,10*s);ctx.strokeRect(x+20*s,y+20*s,14*s,10*s);ctx.beginPath();ctx.moveTo(x+24*s,y+20*s);ctx.lineTo(x+24*s,y+16*s);ctx.lineTo(x+30*s,y+16*s);ctx.lineTo(x+30*s,y+20*s);ctx.stroke()}
+  ctx.restore();
+}
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath()}
+
+// 深度训练
+let depthDrag=false;
+function initDepth(){
+  const c=document.getElementById('depthCanvas');
+  const ctx=c.getContext('2d');drawDepth(ctx,0);
+  const handle=e=>{const r=c.getBoundingClientRect();const y=(e.clientY||e.touches?.[0]?.clientY)-r.top;const pct=Math.max(0,Math.min(1,(y-30)/(c.height-60)));const cm=Math.round(pct*80)/10;drawDepth(ctx,cm);document.getElementById('depthVal').textContent=cm.toFixed(1);const st=document.getElementById('depthStatus');if(cm<2){st.textContent='✅ 尚未插入';st.style.color='var(--teal)'}else if(cm<=4){st.textContent='✅ 安全范围(2-4cm)';st.style.color='var(--green)'}else if(cm<=6){st.textContent='⚠️ 接近危险';st.style.color='var(--amber)'}else{st.textContent='🚨 过深！可能损伤直肠壶腹部！';st.style.color='var(--coral)'}};
+  c.addEventListener('mousedown',e=>{depthDrag=true;handle(e)});
+  c.addEventListener('mousemove',e=>{if(depthDrag)handle(e)});
+  c.addEventListener('mouseup',()=>depthDrag=false);c.addEventListener('mouseleave',()=>depthDrag=false);
+  c.addEventListener('touchstart',e=>{e.preventDefault();depthDrag=true;handle(e)},{passive:false});
+  c.addEventListener('touchmove',e=>{e.preventDefault();if(depthDrag)handle(e)},{passive:false});
+  c.addEventListener('touchend',()=>depthDrag=false);
+}
+function drawDepth(ctx,cm){
+  const w=ctx.canvas.width,h=ctx.canvas.height;ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#fffdf7';ctx.fillRect(0,0,w,h);
+  // 直肠简笔画
+  ctx.strokeStyle='#3d3d3d';ctx.lineWidth=2.5;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(200,30);ctx.quadraticCurveTo(170,170,210,300);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(280,30);ctx.quadraticCurveTo(310,170,270,300);ctx.stroke();
+  // 内壁
+  ctx.fillStyle='#fecdd3';ctx.globalAlpha=.3;
+  ctx.beginPath();ctx.moveTo(200,30);ctx.quadraticCurveTo(170,170,210,300);ctx.lineTo(270,300);ctx.quadraticCurveTo(310,170,280,30);ctx.closePath();ctx.fill();
+  ctx.globalAlpha=1;
+  // 安全区
+  ctx.fillStyle='rgba(123,198,126,.12)';ctx.fillRect(200,30,80,80);
+  ctx.font='bold 11px "ZCOOL KuaiLe",cursive';ctx.fillStyle='#7bc67e';ctx.textAlign='center';ctx.fillText('安全区 2-4cm',240,55);
+  // 危险区
+  ctx.fillStyle='rgba(255,107,107,.1)';ctx.fillRect(200,180,80,120);
+  ctx.fillStyle='#ff6b6b';ctx.fillText('⚠️ 危险区 >6cm',240,260);
+  ctx.font='10px sans-serif';ctx.fillText('直肠壶腹部',240,278);
+  // 刻度
+  for(let i=0;i<=8;i++){const y=30+i*33.75;ctx.strokeStyle=i<=3?'#7bc67e':i<=5?'#ffc857':'#ff6b6b';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(192,y);ctx.lineTo(200,y);ctx.stroke();ctx.fillStyle=i<=3?'#7bc67e':i<=5?'#ffc857':'#ff6b6b';ctx.font='10px sans-serif';ctx.textAlign='right';ctx.fillText(i+'cm',188,y+4)}
+  // 开塞露
+  const nozY=30+(cm/8)*270;
+  ctx.fillStyle='#0d9488';ctx.strokeStyle='#3d3d3d';ctx.lineWidth=2;
+  ctx.fillRect(228,nozY-20,24,20);ctx.strokeRect(228,nozY-20,24,20);
+  ctx.fillStyle='#14b8a6';ctx.fillRect(234,nozY,12,20);ctx.strokeRect(234,nozY,12,20);
+  // 标注
+  ctx.fillStyle='#888';ctx.font='10px "ZCOOL KuaiLe",cursive';ctx.textAlign='center';ctx.fillText('← 朝肚脐方向',240,22);
+}
+
+// 推注
+let pushDown=false,pushStart=0,pushFill=0;
+function initPush(){
+  const track=document.getElementById('pushTrack');
+  const handle=e=>{const r=track.getBoundingClientRect();const x=e.clientX||e.touches?.[0]?.clientX;const pct=Math.max(0,Math.min(1,(x-r.left)/r.width));const fill=document.getElementById('pushFill');fill.style.width=(pct*100)+'%';pushFill=pct;const elapsed=(Date.now()-pushStart)/1000;const speed=pct/Math.max(elapsed,.1);fill.className='push-fill '+(speed>.12?'fast':'slow');document.getElementById('pushLabel').textContent=Math.round(pct*100)+'%'};
+  track.addEventListener('mousedown',e=>{pushDown=true;pushStart=Date.now();handle(e)});
+  track.addEventListener('mousemove',e=>{if(pushDown)handle(e)});
+  track.addEventListener('mouseup',()=>{if(pushDown)finishPush()});track.addEventListener('mouseleave',()=>{if(pushDown)finishPush()});
+  track.addEventListener('touchstart',e=>{e.preventDefault();pushDown=true;pushStart=Date.now();handle(e)},{passive:false});
+  track.addEventListener('touchmove',e=>{e.preventDefault();if(pushDown)handle(e)},{passive:false});
+  track.addEventListener('touchend',()=>{if(pushDown)finishPush()});
+}
+function finishPush(){
+  pushDown=false;const elapsed=(Date.now()-pushStart)/1000;const fb=document.getElementById('pushFb');
+  if(pushFill<.3){fb.innerHTML='<div style="padding:8px 14px;border-radius:10px;background:rgba(255,200,87,.1);border:2px dashed var(--amber);color:var(--orange);font-size:.82rem;display:inline-block">⚠️ 推注不足！请完成全部药液推注。</div>';return}
+  const speed=pushFill/Math.max(elapsed,.1);
+  if(speed>.12){fb.innerHTML='<div style="padding:8px 14px;border-radius:10px;background:rgba(255,107,107,.08);border:2px dashed var(--coral);color:var(--coral);font-size:.82rem;display:inline-block">⚠️ 推注过快！需缓慢注入(10-15秒)，过快可能引发外溢。</div>'}
+  else{fb.innerHTML='<div style="padding:8px 14px;border-radius:10px;background:rgba(123,198,126,.08);border:2px dashed var(--green);color:var(--green);font-size:.82rem;display:inline-block">✅ 推注速度合适！缓慢注入效果最佳。</div>'}
+  setTimeout(()=>{document.getElementById('pushFill').style.width='0%';document.getElementById('pushFill').className='push-fill slow';document.getElementById('pushLabel').textContent='按住滑动 →'},3000);
+}
+
+// 风险
+function buildRisk(){
+  document.getElementById('riskTabs').innerHTML=RISKS.map((r,i)=>`<div class="risk-tab${i===0?' active':''}" onclick="selRisk(${i})" style="${i===0?'background:'+r.tabColor+';border-color:'+r.tabColor:''}">${r.icon} ${r.name}</div>`).join('');
+  selRisk(0);
+}
+function selRisk(i){
+  const r=RISKS[i];document.querySelectorAll('.risk-tab').forEach((t,ti)=>{t.classList.toggle('active',ti===i);if(ti===i){t.style.background=r.tabColor;t.style.borderColor=r.tabColor;t.style.color='#fff'}else{t.style.background='';t.style.borderColor='';t.style.color=''}});
+  document.getElementById('riskScene').innerHTML=`<div class="risk-visual"><div class="risk-icon">${r.icon}</div><div class="risk-text"><h4 style="font-family:'ZCOOL KuaiLe',cursive">${r.name}</h4><p>${r.desc}</p><div class="risk-stat" style="background:${r.tabColor}12;color:${r.tabColor}">📊 ${r.stat}</div></div></div><div style="margin-top:10px"><div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--dim)"><span>风险等级</span><span style="font-weight:700;color:${r.barColor}">${r.barPct}%</span></div><div class="risk-bar"><div class="risk-bar-fill" style="width:0%;background:${r.barColor}" id="riskBarF"></div></div></div>`;
+  setTimeout(()=>{document.getElementById('riskBarF').style.width=r.barPct+'%'},100);
+}
+
+// 人群
+function buildPeople(){
+  document.getElementById('peopleTabs').innerHTML=PEOPLE.map((p,i)=>`<div class="people-tab${i===0?' active':''}" onclick="selPeople(${i})" style="${i===0?'background:'+p.color+';color:#fff;border-color:'+p.color:''}">${p.name}</div>`).join('');
+  selPeople(0);
+}
+function selPeople(i){
+  const p=PEOPLE[i];const clr=p.color||'var(--teal)';
+  document.querySelectorAll('.people-tab').forEach((t,ti)=>t.classList.toggle('active',ti===i));
+  document.querySelectorAll('.people-tab.active').forEach(t=>{t.style.background=clr;t.style.borderColor=clr});
+  document.getElementById('peopleDetail').innerHTML=`<div class="people-params"><div class="pp-item" style="border-color:${clr}30"><div class="pp-label">插入深度</div><div class="pp-val" style="color:${clr}">${p.depth}</div></div><div class="pp-item" style="border-color:${clr}30"><div class="pp-label">推荐用量</div><div class="pp-val" style="color:#7bc67e">${p.vol}</div></div><div class="pp-item" style="border-color:${clr}30"><div class="pp-label">推注速度</div><div class="pp-val" style="color:#4ecdc4">${p.speed}</div></div></div><div class="people-warn" style="background:${clr}10;border-color:${clr}50;color:${clr}">⚠️ ${p.warn}</div>`;
+}
+
+// 自测
+let sqIdx=0,sqAns=[];
+function buildSelfQuiz(){sqIdx=0;sqAns=[];renderSQ()}
+function renderSQ(){
+  const el=document.getElementById('selfQuiz');if(sqIdx>=SQ.length){showSQResult();return}
+  const q=SQ[sqIdx];
+  el.innerHTML=`<div class="sq-q">${sqIdx+1}/${SQ.length} · ${q.q}</div><div class="sq-opts">${q.opts.map((o,oi)=>`<div class="sq-opt${sqAns[sqIdx]===oi?' chosen':''}" onclick="sqAns[${sqIdx}]=${oi};renderSQ()">${o}</div>`).join('')}</div><div class="sq-nav"><button class="dbtn" onclick="sqIdx=Math.max(0,sqIdx-1);renderSQ()" ${sqIdx===0?'disabled style="opacity:.3"':''}>← 上一题</button><button class="dbtn teal" onclick="if(sqAns[${sqIdx}]===undefined){toast('请先选择')};else{sqIdx++;renderSQ()}">${sqIdx===SQ.length-1?'查看结果':'下一题 →'}</button></div>`;
+}
+function showSQResult(){
+  const total=SQ.reduce((s,q,i)=>s+(q.sc[sqAns[i]]||0),0);
+  let level,advice,clr;
+  if(total<=4){level='轻度或无便秘';advice='排便习惯良好！保持饮水≥1.5L/日、高纤维饮食和规律运动。开塞露每周勿超2次。';clr='var(--green)'}
+  else if(total<=9){level='中度便秘倾向';advice='建议：①每日饮水≥1.5L ②增加纤维(粗粮30g+蔬果500g) ③每天运动30分钟 ④固定排便时间。开塞露每周勿超2次！';clr='var(--amber)'}
+  else{level='重度便秘风险';advice='强烈建议就医排查器质性病因！停止长期依赖开塞露，在医生指导下使用温和泻药替代。开塞露仅为应急手段，治本需调整生活习惯！';clr='var(--coral)'}
+  document.getElementById('selfQuiz').innerHTML=`<div style="text-align:center;font-family:'ZCOOL KuaiLe',cursive"><div style="font-size:3rem;font-weight:900;color:${clr}">${total}</div><div style="color:var(--dim)">/ 18 分</div><div style="font-size:1.1rem;margin-top:10px;color:${clr}">${level}</div><div style="margin-top:14px;padding:12px 16px;border-radius:12px;background:${clr}10;border:2px dashed ${clr};color:${clr};font-size:.82rem;line-height:1.7;text-align:left">${advice}</div><button class="dbtn teal" style="margin-top:14px" onclick="sqIdx=0;sqAns=[];renderSQ()">重新测试</button></div>`;
+}
+
+// 计时
+let tInterval=null,tSec=300,tRunning=false;
+function startTimer(){if(tRunning)return;tRunning=true;document.getElementById('timerCircle').className='timer-circle running';document.getElementById('tStart').style.display='none';document.getElementById('tStop').style.display='';document.getElementById('tReset').style.display='';document.getElementById('timerMsg').innerHTML='⏳ 保持左侧卧位...';tInterval=setInterval(()=>{tSec--;const m=Math.floor(tSec/60),s=tSec%60;document.getElementById('timerTime').textContent=m+':'+(s<10?'0':'')+s;if(tSec<=0){clearInterval(tInterval);tRunning=false;document.getElementById('timerCircle').className='timer-circle success';document.getElementById('timerMsg').innerHTML='🎉 成功！左侧卧位利用重力帮助药液流向深处，效果提升约40%。';document.getElementById('tStop').style.display='none'}},1000)}
+function stopTimer(){clearInterval(tInterval);tRunning=false;document.getElementById('timerCircle').className='timer-circle failed';document.getElementById('timerMsg').innerHTML='❌ 中途放弃！药液需5-10分钟才能充分软化粪便。';document.getElementById('tStop').style.display='none'}
+function resetTimer(){clearInterval(tInterval);tRunning=false;tSec=300;document.getElementById('timerTime').textContent='5:00';document.getElementById('timerCircle').className='timer-circle';document.getElementById('tStart').style.display='';document.getElementById('tStop').style.display='none';document.getElementById('tReset').style.display='none';document.getElementById('timerMsg').innerHTML=''}
+
+// 禁忌
+let emDone=[];
+function buildEmergency(){emDone=new Array(EMERG.length).fill(false);document.getElementById('emBody').innerHTML=EMERG.map((e,i)=>`<div class="em-card" id="emC${i}"><div class="em-symptom">🚨 ${e.symptom}</div><div class="em-desc">${e.desc}</div><div class="em-opts"><div class="em-opt" onclick="emAns(${i},'ok',this)">🛑 ${e.okText}</div><div class="em-opt" onclick="emAns(${i},'no',this)">▶️ ${e.wrongText}</div></div><div class="em-fb" id="emF${i}"></div></div>`).join('')}
+function emAns(i,ch,el){if(emDone[i])return;emDone[i]=true;const e=EMERG[i];const fb=document.getElementById('emF'+i);el.parentElement.querySelectorAll('.em-opt').forEach(o=>o.style.pointerEvents='none');const isOk=(ch==='ok');el.classList.add(isOk?'ok':'no');fb.className='em-fb';fb.style.display='block';fb.style.background=isOk?'rgba(123,198,126,.06)':'rgba(255,107,107,.06)';fb.style.borderColor=isOk?'var(--green)':'var(--coral)';fb.style.color=isOk?'var(--green)':'var(--coral)';fb.innerHTML=(isOk?'✅ 正确！':'❌ 危险！')+e.case}
+
+// 润滑
+function runLubeExp(){
+  const noCtx=document.getElementById('lubeNoC').getContext('2d');
+  const yesCtx=document.getElementById('lubeYesC').getContext('2d');
+  let f=0;const t=60;
+  const a=setInterval(()=>{f++;drawLubeF(noCtx,f,t,false);drawLubeF(yesCtx,f,t,true);if(f>=t){clearInterval(a);document.getElementById('lubeVerdict').style.display='block'}},33);
+}
+function drawLubeF(ctx,f,t,lubed){
+  const w=180,h=100;ctx.clearRect(0,0,w,h);ctx.fillStyle='#fffdf7';ctx.fillRect(0,0,w,h);
+  ctx.fillStyle=lubed?'#d1fae5':'#fecdd3';ctx.fillRect(15,25,150,50);
+  ctx.strokeStyle='#3d3d3d';ctx.lineWidth=2;ctx.strokeRect(15,25,150,50);
+  const p=Math.min(f/t,1);const x=15+p*120;
+  ctx.fillStyle='#0d9488';ctx.fillRect(x,30,20,40);ctx.strokeRect(x,30,20,40);
+  if(!lubed&&p>.2){ctx.fillStyle='rgba(255,107,107,'+Math.min(.6,p*.6)+')';for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(x-3+Math.random()*6,35+Math.random()*30,2,0,Math.PI*2);ctx.fill()}}
+  if(lubed){ctx.fillStyle='rgba(123,198,126,.15)';ctx.fillRect(15,25,x-15,50)}
+  ctx.fillStyle=lubed?'#7bc67e':'#ff6b6b';ctx.font='bold 11px "ZCOOL KuaiLe",cursive';ctx.textAlign='center';
+  ctx.fillText(lubed?'顺滑 ✓':'摩擦 ✗',90,18);
+}
+
+// 冷知识/时间线/提示
+function buildFacts(){document.getElementById('factsGrid').innerHTML=FACTS.map((f,i)=>`<div class="fact-card" data-n="0${i+1}" style="border-color:${f.color}"><span class="fact-icon">${f.icon}</span><h4>${f.title}</h4><p>${f.text}</p><div style="position:absolute;top:-8px;right:-8px;width:20px;height:20px;background:${f.color};border:2px solid ${f.color};border-radius:50%"></div></div>`).join('')}
+function buildTimeline(){document.getElementById('tlWrap').innerHTML=TL.map(t=>`<div class="tl-item"><h4>${t.era} <span>${t.year}</span></h4><p>${t.t}</p></div>`).join('')}
+function buildTips(){document.getElementById('tipsBox').innerHTML=TIPS.map(t=>`<div class="tip-row"><span class="te">${t.e}</span><p><strong>${t.l}：</strong>${t.t}</p></div>`).join('')}
+
+// 通用
+function initScroll(){
+  const nav=document.getElementById('topnav');const prog=document.getElementById('scrollBar');const back=document.getElementById('backTopBtn');
+  window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',scrollY>50);prog.style.width=(scrollY/(document.documentElement.scrollHeight-innerHeight))*100+'%';back.classList.toggle('show',scrollY>500)});
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')}),{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  document.querySelectorAll('.topnav .links a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'})}));
+}
+function toast(msg){const el=document.getElementById('toastEl');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
+</script>
+</body>
+</html>
